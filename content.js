@@ -28,7 +28,7 @@ var social_networks = [
 function removeShit()
 {
   var output = $('<div>', {'style': 'background: #eee; padding: 50px 20px;', 'class': 'js-unshit-parent'});
-  var heading = $('<h1>', {'style': 'color: #bbb;', 'text': 'Pokemon No!'});
+  var heading = $('<h1>', {'style': 'color: #bbb;', 'text': 'Pokemon Go Away!'});
 
   output.append(heading);
 
