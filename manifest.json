@@ -2,12 +2,6 @@
   "manifest_version": 2,
   "name": "Pokemon Go Away!",
   "version": "0.0.1",
-  "background": {
-    "run_at": "document_start",
-    "scripts": [
-      "background.js"
-    ]
-  },
   "content_scripts": [
     {
       "matches": [
@@ -23,7 +17,9 @@
     "default_icon": "assets/icon.png",
     "default_popup": "popup/popup.html"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "options_ui": {
     "page": "options/options.html",
     "chrome_style": true
