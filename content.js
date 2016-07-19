@@ -66,10 +66,10 @@ function hidePost(container, parentSelector, searchTerm)
         if(str.indexOf(searchTerm) > -1)
         {
           var item = $this.closest(parentSelector)
-                          .addClass('js-processed')
-                          .hide();
+                          .addClass('js-processed');
 
-          removeShit().insertBefore(item);
+          item.wrapInner($('<div class="js-post">').hide());
+          removeShit().prependTo(item);
         }
       }
     }
@@ -124,9 +124,7 @@ $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
 $(document).on(
   'click', '.js-post-toggle', function ()
   {
-    var post = $(this).closest('.js-post-parent')
-                      .parent()
-                      .find('.js-processed');
+    var post = $(this).closest('.js-processed').find('.js-post');
 
     post.toggle();
 
