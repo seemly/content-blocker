@@ -14,14 +14,9 @@
     }
   ],
   "browser_action": {
-    "default_icon": "assets/icon.png",
-    "default_popup": "popup/popup.html"
+    "default_icon": "assets/icon.png"
   },
   "permissions": [
     "storage"
-  ],
-  "options_ui": {
-    "page": "options/options.html",
-    "chrome_style": true
-  }
+  ]
 }
