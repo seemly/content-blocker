@@ -1,23 +1,8 @@
 const SN_FACEBOOK = 'facebook';
 const SN_TWITTER = 'twitter';
 const SEARCH_TERMS = [
-  'pokemon','pokémon'
+  'pokemon', 'pokémon'
 ];
-
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse)
-  {
-    if(request.message === "clicked_browser_action")
-    {
-      var firstHref = $("a[href^='http']").eq(0).attr("href");
-
-      console.log(firstHref);
-
-      // This line is new!
-      chrome.runtime.sendMessage({"message": "open_new_tab", "url": firstHref});
-    }
-  }
-);
 
 var hostname = window.location.hostname;
 var social_networks = [
@@ -27,38 +12,27 @@ var social_networks = [
 
 function removeShit()
 {
-  var output = $('<div>', {'style': 'background: #eee; padding: 50px 20px;', 'class': 'js-unshit-parent'});
-  var heading = $('<h1>', {'style': 'color: #bbb;', 'text': 'Pokemon Go Away!'});
-
-  output.append(heading);
-
-  return output;
-}
-
-function facebookHidePost(searchTerm, parentSelector)
-{
-  $("[data-referrer] *").filter(
-    function ()
+  var output = $(
+    '<div>',
     {
-      var $this = $(this),
-        str = $.trim($this.text().toLowerCase());
-
-      if(str.length > 0 && $this.is(':visible'))
-      {
-        if(str.indexOf(searchTerm) > -1)
-        {
-          var $crap = $this.closest(parentSelector);
-          $crap.css('border', '1px solid #f00');
-          $this.closest(parentSelector).replaceWith(removeShit(parentSelector));
-        }
-      }
+      'style': 'background: #eee; padding: 50px 20px;',
+      'class': 'js-unshit-parent'
     }
   );
+  var heading = $(
+    '<h1>',
+    {
+      'style': 'color: #666;',
+      'text':  'Pokemon Go Away!'
+    }
+  );
+
+  return output.append(heading);
 }
 
-function twitterHidePost(searchTerm, parentSelector)
+function hidePost(container, parentSelector, searchTerm)
 {
-  $(".stream *").filter(
+  $(container + " *").filter(
     function ()
     {
       var $this = $(this),
@@ -68,8 +42,6 @@ function twitterHidePost(searchTerm, parentSelector)
       {
         if(str.indexOf(searchTerm) > -1)
         {
-          var $crap = $this.closest(parentSelector);
-          $crap.css('border', '1px solid #f00');
           $this.closest(parentSelector).replaceWith(removeShit(parentSelector));
         }
       }
@@ -87,15 +59,15 @@ function checkPage()
         $(SEARCH_TERMS).each(
           function ()
           {
+            var searchTerm = this.toLowerCase();
+
             switch(value)
             {
               case SN_FACEBOOK:
-                console.log('facebook');
-                facebookHidePost(this.toLowerCase(), '.userContentWrapper');
+                hidePost('[data-referrer]', '.userContentWrapper', searchTerm);
                 break;
               case SN_TWITTER:
-                console.log('twitter');
-                twitterHidePost(this.toLowerCase(), '.js-stream-item');
+                hidePost('.stream', '.js-stream-item', searchTerm);
                 break;
             }
           }
@@ -115,7 +87,7 @@ function DOMModificationHandler()
       checkPage();
 
       $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
-    }, 1000
+    }, 500
   );
 }
 
