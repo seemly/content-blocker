@@ -3,7 +3,7 @@
   "author": "Chris Sparshott",
   "name": "Pokemon No Show",
   "version": "0.0.3",
-  "description": "'Pokemon No Show' is a social network content blocker specifically aimed at Pokemon Go posts on Facebook and Twitter",
+  "description": "'Pokemon No Show' is a social network content blocker specifically aimed at Pokemon Go posts on Facebook and Twitter. Using options, you can also define your own additional keywords.",
   "icons": {
     "16": "assets/images/icon_16.png",
     "48": "assets/images/icon_48.png",
