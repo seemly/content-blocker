@@ -3,7 +3,7 @@
   "author": "Chris Sparshott",
   "name": "Pokemon No Show",
   "version": "0.0.3",
-  "description": "'Pokemon No Show' is a social network content blocker, hiding posts if the content matches any of the keywords defined in the extensions options page.",
+  "description": "'Pokemon No Show' hides Facebook and Twitter posts if the content matches any of the keywords defined in the extensions options page",
   "icons": {
     "16": "assets/images/icon_16.png",
     "48": "assets/images/icon_48.png",
