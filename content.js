@@ -1,24 +1,15 @@
-var headingText = 'Pokemon Go Away!';
-const SEARCH_TERMS = [
-  'pokemon', 'pokémon'
-];
-
-/**
- * All code above is config
- * all code below is extension related.
- *
- */
-
 const SN_FACEBOOK = 'facebook';
 const SN_TWITTER = 'twitter';
 
+var searchTerms = null;
+var manifest = chrome.runtime.getManifest();
 var hostname = window.location.hostname;
 var social_networks = [
   SN_FACEBOOK,
   SN_TWITTER
 ];
 
-function removeShit()
+function removeShit(searchTerm)
 {
   var output = $(
     '<div>',
@@ -30,8 +21,15 @@ function removeShit()
   var heading = $(
     '<h1>',
     {
-      'style': 'color: #666; margin-top: 8px;',
-      'text':  headingText
+      'style': 'color: #666;',
+      'text':  manifest.name
+    }
+  );
+  var keyword = $(
+    '<span>',
+    {
+      'text': 'keyword: ' + searchTerm,
+      'style': 'color: #999;'
     }
   );
   var btn = $(
@@ -44,6 +42,7 @@ function removeShit()
   );
   output.append(btn);
   output.append(heading);
+  output.append(keyword);
 
   return output;
 }
@@ -69,7 +68,7 @@ function hidePost(container, parentSelector, searchTerm)
                           .addClass('js-processed');
 
           item.wrapInner($('<div class="js-post">').hide());
-          removeShit().prependTo(item);
+          removeShit(searchTerm).prependTo(item);
         }
       }
     }
@@ -78,30 +77,44 @@ function hidePost(container, parentSelector, searchTerm)
 
 function checkPage()
 {
-  $(social_networks).each(
-    function (key, value)
-    {
-      if(hostname.indexOf(value) > -1)
+  if(searchTerms)
+  {
+    $(social_networks).each(
+      function (key, socialNetwork)
       {
-        $(SEARCH_TERMS).each(
-          function ()
-          {
-            var searchTerm = this.toLowerCase();
-
-            switch(value)
+        if(hostname.indexOf(socialNetwork) > -1)
+        {
+          $(searchTerms).each(
+            function ()
             {
-              case SN_FACEBOOK:
-                hidePost('[data-referrer]', '.userContentWrapper', searchTerm);
-                break;
-              case SN_TWITTER:
-                hidePost('.stream', '.js-stream-item', searchTerm);
-                break;
+              var keyword = $.trim(this.toLowerCase());
+
+              switch(socialNetwork)
+              {
+                case SN_FACEBOOK:
+                  hidePost('[data-referrer]', '.userContentWrapper', keyword);
+                  break;
+                case SN_TWITTER:
+                  hidePost('.stream', '.js-stream-item', keyword);
+                  break;
+              }
             }
-          }
-        );
+          );
+        }
       }
-    }
-  );
+    );
+  }
+  else
+  {
+    chrome.storage.sync.get(
+      'keywords', function (items)
+      {
+        searchTerms = atob(items.keywords).split(',');
+      }
+    );
+
+    setTimeout(function() { checkPage(); }, 250);
+  }
 }
 checkPage();
 
@@ -112,7 +125,6 @@ function DOMModificationHandler()
     function ()
     {
       checkPage();
-
       $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
     }, 500
   );
