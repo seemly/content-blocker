@@ -128,7 +128,6 @@ function checkPage()
     setTimeout(function () { checkPage(); }, 250);
   }
 }
-checkPage();
 
 function DOMModificationHandler()
 {
@@ -138,7 +137,6 @@ function DOMModificationHandler()
     setTimeout(
       function ()
       {
-        console.log('checkPage');
         checkPage();
         $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
       }, 750
