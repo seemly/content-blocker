@@ -1,61 +1,59 @@
-const SN_FACEBOOK = 'facebook';
-const SN_TWITTER = 'twitter';
+const PLATFORM_FACEBOOK = 'facebook';
+const PLATFORM_TWITTER = 'twitter';
+const PLATFORM_LINKEDIN = 'linkedin';
 
 var searchTerms = null;
 var manifest = chrome.runtime.getManifest();
 var hostname = window.location.hostname;
-var social_networks = [
-  SN_FACEBOOK,
-  SN_TWITTER
+var platforms = [
+  PLATFORM_FACEBOOK,
+  PLATFORM_TWITTER,
+  PLATFORM_LINKEDIN
 ];
 
-function removeShit(searchTerm)
+function hidePost(searchTerm)
 {
-  var output = $(
-    '<div>',
-    {
-      'style': 'background: #eee; padding: 20px 20px; overflow: hidden; border: 1px solid rgba(0, 0, 0, 0.15);',
-      'class': 'js-post-parent'
-    }
+  var output = document.createElement('div');
+  output.classList.add('js-post-parent');
+  output.setAttribute(
+    'style',
+    'background: #eee; padding: 20px 20px; overflow: hidden; ' +
+    'border: 1px solid rgba(0, 0, 0, 0.15);'
   );
-  var heading = $(
-    '<h1>',
-    {
-      'style': 'color: #666;',
-      'text':  manifest.name
-    }
-  );
-  var keyword = $(
-    '<span>',
-    {
-      'text': 'keyword: ' + searchTerm,
-      'style': 'color: #999;'
-    }
-  );
-  var btn = $(
-    '<button>',
-    {
-      'class': 'js-post-toggle',
-      'text':  'Show Post',
-      'style': 'float: right; padding: 8px 12px; border: 1px solid rgba(0, 0, 0, 0.25); border-radius: 2px; background: #3B5998; color: rgba(255, 255, 255, 0.75); cursor: pointer;'
-    }
-  );
-  output.append(btn);
-  output.append(heading);
-  output.append(keyword);
 
-  return output;
+  var heading = document.createElement('h1');
+  heading.setAttribute('style', 'color: #666;');
+  heading.textContent = manifest.name;
+
+  var keyword = document.createElement('span');
+  keyword.setAttribute('style', 'color: #999;');
+  keyword.textContent = 'keyword: ' + searchTerm;
+
+  var btn = document.createElement('button');
+  btn.classList.add('js-post-toggle');
+  btn.textContent = 'Show Post';
+  btn.setAttribute(
+    'style', 'float: right; padding: 8px 12px; ' +
+    'border: 1px solid rgba(0, 0, 0, 0.25); border-radius: 2px; ' +
+    'background: #3B5998; color: rgba(255, 255, 255, 0.75); cursor: pointer;'
+  );
+
+  output.appendChild(btn);
+  output.appendChild(heading);
+  output.appendChild(keyword);
+
+  return $(output);
 }
 
-function hidePost(container, parentSelector, searchTerm)
+function filterContent(feedContainer, postContainer, searchTerm)
 {
-  $(container + " *").filter(
+  $(feedContainer + " *").filter(
     function ()
     {
       var $this = $(this),
         str = $.trim($this.text().toLowerCase());
 
-      if($this.closest(parentSelector).hasClass('js-processed'))
+      if($this.closest(postContainer).hasClass('js-processed'))
       {
         return false;
       }
@@ -64,11 +62,11 @@ function hidePost(container, parentSelector, searchTerm)
       {
         if(str.indexOf(searchTerm) > -1)
         {
-          var item = $this.closest(parentSelector)
+          var item = $this.closest(postContainer)
                           .addClass('js-processed');
 
           item.wrapInner($('<div class="js-post">').hide());
-          removeShit(searchTerm).prependTo(item);
+          hidePost(searchTerm).prependTo(item);
         }
       }
     }
@@ -79,27 +77,34 @@ function checkPage()
 {
   if(searchTerms)
   {
-    $(social_networks).each(
-      function (key, socialNetwork)
+    $(platforms).each(
+      function (key, platform)
       {
-        if(hostname.indexOf(socialNetwork) > -1)
+        if(hostname.indexOf(platform) > -1)
         {
           $(searchTerms).each(
             function ()
             {
-              var keyword = $.trim(this.toLowerCase());
+              var kw = $.trim(this.toLowerCase());
 
-              switch(socialNetwork)
+              switch(platform)
               {
-                case SN_FACEBOOK:
-                  hidePost('[data-referrer]', '.userContentWrapper', keyword);
+                case PLATFORM_FACEBOOK:
+                  filterContent('[data-referrer]', '.userContentWrapper', kw);
                   break;
-                case SN_TWITTER:
-                  hidePost('.stream', '.js-stream-item', keyword);
+                case PLATFORM_TWITTER:
+                  filterContent('.stream', '.js-stream-item', kw);
+                  break;
+                case PLATFORM_LINKEDIN:
+                  filterContent('#ozfeed', 'li > .content', kw);
                   break;
               }
             }
           );
+        }
+        else
+        {
+          console.log(hostname + ' is not in the list of supported platforms');
         }
       }
     );
@@ -113,7 +118,7 @@ function checkPage()
       }
     );
 
-    setTimeout(function() { checkPage(); }, 250);
+    setTimeout(function () { checkPage(); }, 250);
   }
 }
 checkPage();
@@ -124,9 +129,10 @@ function DOMModificationHandler()
   setTimeout(
     function ()
     {
+      console.log('checkPage');
       checkPage();
       $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
-    }, 500
+    }, 750
   );
 }
 
