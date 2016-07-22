@@ -110,7 +110,7 @@ function checkPage()
       }
     );
 
-    if(!hostnameExists)
+    if(hostnameExists === 0)
     {
       isSupported = false;
       console.log(hostname + ' is not in the list of supported platforms');
