@@ -5,6 +5,7 @@ const PLATFORM_LINKEDIN = 'linkedin';
 var searchTerms = null;
 var manifest = chrome.runtime.getManifest();
 var hostname = window.location.hostname;
+var isSupported = true;
 var platforms = [
   PLATFORM_FACEBOOK,
   PLATFORM_TWITTER,
@@ -77,11 +78,15 @@ function checkPage()
 {
   if(searchTerms)
   {
+    var hostnameExists = 0;
+
     $(platforms).each(
       function (key, platform)
       {
         if(hostname.indexOf(platform) > -1)
         {
+          hostnameExists++;
+
           $(searchTerms).each(
             function ()
             {
@@ -102,12 +107,14 @@ function checkPage()
             }
           );
         }
-        else
-        {
-          console.log(hostname + ' is not in the list of supported platforms');
-        }
       }
     );
+
+    if(!hostnameExists)
+    {
+      isSupported = false;
+      console.log(hostname + ' is not in the list of supported platforms');
+    }
   }
   else
   {
@@ -125,15 +132,18 @@ checkPage();
 
 function DOMModificationHandler()
 {
-  $(this).unbind('DOMSubtreeModified.event1');
-  setTimeout(
-    function ()
-    {
-      console.log('checkPage');
-      checkPage();
-      $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
-    }, 750
-  );
+  if(isSupported)
+  {
+    $(this).unbind('DOMSubtreeModified.event1');
+    setTimeout(
+      function ()
+      {
+        console.log('checkPage');
+        checkPage();
+        $(document).on('DOMSubtreeModified.event1', DOMModificationHandler);
+      }, 750
+    );
+  }
 }
 
 //after document-load
